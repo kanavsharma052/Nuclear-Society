@@ -5,18 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nuclear Society – Orientation Presentation</title>
 
-  <!-- Base styles -->
+  <!-- Link to global styles and custom overrides -->
   <link rel="stylesheet" href="style.css" />
-  <!-- New visual overrides -->
   <link rel="stylesheet" href="custom.css" />
 
-  <!-- External libraries -->
+  <!-- External fonts for trendy, futuristic look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- External libraries for charts and CSV parsing -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
 </head>
 <body>
-  <!-- ---- existing slide markup is unchanged ---- -->
+
+  <!-- Main container for the entire presentation -->
+  <main id="presentation" class="scroll-snap-type-y mandatory h-full w-full overflow-y-auto bg-gray-100">
+
+    <!-- Title Slide -->
+    <section class="slide title-slide h-screen flex flex-col items-center justify-center text-white p-8" id="slide-0">
+      <div class="max-w-2xl text-center">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4">Nuclear Society</h1>
+        <h2 class="text-3xl md:text-4xl font-semibold mb-6">Devoted to Developing Nuclear Reactor Technologies</h2>
+        <p class="text-xl md:text-2xl max-w-xl mx-auto">Empowering the Future of Energy through Innovation and Safety</p>
+      </div>
+    </section>
+
+    <!-- Motivation Section (Slides 1-5) -->
+    <section class="slide bg-white p-8 flex flex-col justify-center items-center" id="slide-1">
+      <div class="slide-body max-w-5xl mx-auto prose lg:prose-xl">
+        <h2 class="text-3xl font-semibold mb-4">Motivation</h2>
+        <!-- Sankey Diagram -->
+        <div class="chart-container mb-8">
+          <canvas class="sankey-chart"></canvas>
+        </div>
+        <!-- Content -->
+        <ul>
+          <li><strong>India's Energy Flow:</strong> Visualized via Sankey, showing a small nuclear slice amidst large coal/oil flows.</li>
+          <li><strong>Problems with Carbon Energy:</strong> Emissions, air pollution, and climate impact.</li>
+          <li><strong>National Mission:</strong> Target of 100 GW nuclear power by 2047 with plans for SMRs.</li>
+          <li><strong>Global Investments:</strong> Rising foreign and domestic investments into nuclear tech.</li>
+          <li><strong>AI & Electric Transport:</strong> Driving energy demand, with data center and EV growth projections.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- India's 3-Stage Nuclear Program (Slides 6-7) -->
+    <section class="slide bg-white p-8 flex flex-col justify-center items-center" id="slide-2">
+      <div class="slide-body max-w-4xl mx-auto prose lg:prose-xl">
+        <h2 class="text-3xl font-semibold mb-4">India's 3-Stage Nuclear Program</h2>
+        <h3 class="text-2xl mb-2">Homi Bhabha's Vision</h3>
+        <p>Inspired by Dr. Bhabha, India’s nuclear plan leverages thorium reserves, aiming for energy independence and innovation.</p>
+        <h3 class="text-2xl mb-2">Waste Reprocessing & Benefits</h3>
+        <p>High-level waste volume reduction, material recovery, and achieving a sustainable closed fuel cycle.</p>
+      </div>
+    </section>
+
+    <!-- Challenges Section (Slides 8-11) -->
+    <section class="slide bg-gray-50 p-8 flex flex-col justify-center items-center" id="slide-3">
+      <div class="slide-body max-w-5xl mx-auto prose lg:prose-xl">
+        <h2 class="text-3xl font-semibold mb-4">Challenges</h2>
+        <ul>
+          <li><strong>Risk & Consequences:</strong> Low probability but high impact; safety barriers in place.</li>
+          <li><strong>Safety Requirements:</strong> Stringent standards ensure safety of reactors and personnel.</li>
+          <li><strong>Validation Timeline:</strong> 8–10 years from design to operation with multiple reviews.</li>
+          <li><strong>Workforce Development:</strong> Need for 200,000+ new nuclear workers globally by 2030.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Your Role Section (Slides 12-13) -->
+    <section class="slide bg-white p-8 flex flex-col justify-center items-center" id="slide-4">
+      <div class="slide-body max-w-4xl mx-auto prose lg:prose-xl">
+        <h2 class="text-3xl font-semibold mb-4">Your Role</h2>
+        <ul>
+          <li><strong>Mission Mode Teams:</strong> Develop IP via open-source tools like OpenMC and OpenFOAM.</li>
+          <li><strong>Bharat Small Reactors:</strong> Infrastructure research including BSMR-200 and BSMR-55.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Outcomes & Opportunities (Slides 14-16) -->
+    <section class="slide bg-gray-50 p-8 flex flex-col justify-center items-center" id="slide-5">
+      <div class="slide-body max-w-5xl mx-auto prose lg:prose-xl">
+        <h2 class="text-3xl font-semibold mb-4">Outcomes & Opportunities</h2>
+        <ul>
+          <li><strong>Global Startups:</strong> Growing ecosystem in SMR tech, waste management, and digital solutions.</li>
+          <li><strong>Academic Publications:</strong> Research collaborations and publications worldwide.</li>
+          <li><strong>Career Paths:</strong> Industry, academia, and innovation startups in nuclear tech.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Timeline (Slides 17-19) -->
+    <section class="slide bg-white p-8 flex flex-col justify-center items-center" id="slide-6">
+      <div class="slide-body max-w-5xl mx-auto prose lg:prose-xl">
+        <h2 class="text-3xl font-semibold mb-4">Timeline & Activities</h2>
+        <ul>
+          <li><strong>Lecture Series:</strong> Monthly guest lectures on reactor physics and safety.</li>
+          <li><strong>Practical Software:</strong> Hands-on with OpenMC, OpenFOAM, and analysis tools.</li>
+          <li><strong>Team Formation:</strong> 12–18 month projects with KPIs for IP, publications, and industry outreach.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Navigation controls -->
+  <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4 z-50">
+    <button id="prev-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded disabled:opacity-50" disabled>Previous</button>
+    <div class="flex items-center space-x-2">
+      <span class="font-semibold">Slide</span>
+      <span id="current-slide" class="font-bold">1</span> / <span id="total-slides">7</span>
+    </div>
+    <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Next</button>
+  </div>
+
+  <!-- JS Scripts for interaction and charts -->
   <script src="app.js"></script>
 </body>
 </html>
-
