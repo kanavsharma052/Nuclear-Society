@@ -1,525 +1,594 @@
-// Nuclear Society Presentation JavaScript
+// Application data
+const appData = {
+  energyFlowData: [
+    {"source": "Coal", "target": "Electricity", "value": 720},
+    {"source": "Oil & Gas", "target": "Transportation", "value": 280},
+    {"source": "Nuclear", "target": "Electricity", "value": 50},
+    {"source": "Renewables", "target": "Electricity", "value": 120},
+    {"source": "Electricity", "target": "Industry", "value": 400},
+    {"source": "Electricity", "target": "Residential", "value": 300},
+    {"source": "Electricity", "target": "Commercial", "value": 190}
+  ],
+  investmentData: [
+    {"country": "USA", "investment": 85, "projects": 12},
+    {"country": "China", "investment": 120, "projects": 18},
+    {"country": "India", "investment": 45, "projects": 8},
+    {"country": "France", "investment": 35, "projects": 6},
+    {"country": "UK", "investment": 28, "projects": 5}
+  ],
+  workforceProjections: [
+    {"year": 2024, "current": 100000, "required": 100000},
+    {"year": 2030, "current": 150000, "required": 200000},
+    {"year": 2040, "current": 250000, "required": 300000},
+    {"year": 2050, "current": 375000, "required": 375000}
+  ]
+};
 
-class NuclearPresentation {
-    constructor() {
-        this.currentSlide = 0;
-        this.totalSlides = 20;
-        this.slides = document.querySelectorAll('.slide');
-        this.sections = [
-            { name: 'Introduction', start: 0, end: 0 },
-            { name: 'Motivation', start: 1, end: 5 },
-            { name: "India's 3-Stage Nuclear Program", start: 6, end: 7 },
-            { name: 'Challenges', start: 8, end: 11 },
-            { name: 'Your Role', start: 12, end: 13 },
-            { name: 'Outcomes and Opportunities', start: 14, end: 16 },
-            { name: 'Timeline', start: 17, end: 19 }
-        ];
-        
-        this.init();
-    }
+// Section mapping
+const sections = {
+  1: 'Introduction',
+  2: 'Motivation', 3: 'Motivation', 4: 'Motivation', 5: 'Motivation', 6: 'Motivation',
+  7: "India's Program", 8: "India's Program",
+  9: 'Challenges', 10: 'Challenges', 11: 'Challenges', 12: 'Challenges',
+  13: 'Your Role', 14: 'Your Role',
+  15: 'Outcomes', 16: 'Outcomes', 17: 'Outcomes',
+  18: 'Timeline', 19: 'Timeline', 20: 'Timeline'
+};
 
-    init() {
-        this.setupNavigation();
-        this.createDots();
-        this.updateSlideCounter();
-        this.updateSectionIndicator();
-        this.loadTableData();
-        this.setupKeyboardNavigation();
-    }
+// Application state
+let currentSlide = 1;
+const totalSlides = 20;
 
-    setupNavigation() {
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
+// DOM elements
+let slides, prevBtn, nextBtn, currentSlideSpan, totalSlidesSpan, sectionNameSpan, navDots;
 
-        prevBtn.addEventListener('click', () => this.previousSlide());
-        nextBtn.addEventListener('click', () => this.nextSlide());
+// Initialize application when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing presentation...');
+  initializeElements();
+  setupNavigation();
+  setupKeyboardNavigation();
+  createNavigationDots();
+  updateSlideInfo();
+  updateButtonStates();
+  
+  // Initialize charts with delay
+  setTimeout(() => {
+    initializeCharts();
+  }, 500);
+});
 
-        this.updateNavigationButtons();
-    }
-
-    createDots() {
-        const dotsContainer = document.getElementById('slide-dots');
-        dotsContainer.innerHTML = '';
-
-        for (let i = 0; i < this.totalSlides; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'dot';
-            if (i === this.currentSlide) {
-                dot.classList.add('active');
-            }
-            dot.addEventListener('click', () => this.goToSlide(i));
-            dotsContainer.appendChild(dot);
-        }
-    }
-
-    updateDots() {
-        const dots = document.querySelectorAll('.dot');
-        dots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === this.currentSlide);
-        });
-    }
-
-    goToSlide(slideIndex) {
-        if (slideIndex < 0 || slideIndex >= this.totalSlides) return;
-
-        // Remove active class from current slide
-        this.slides[this.currentSlide].classList.remove('active');
-        if (slideIndex < this.currentSlide) {
-            this.slides[this.currentSlide].classList.add('prev');
-        } else {
-            this.slides[this.currentSlide].classList.remove('prev');
-        }
-
-        // Update current slide
-        this.currentSlide = slideIndex;
-
-        // Add active class to new slide
-        this.slides[this.currentSlide].classList.add('active');
-        this.slides[this.currentSlide].classList.remove('prev');
-
-        this.updateDots();
-        this.updateNavigationButtons();
-        this.updateSlideCounter();
-        this.updateSectionIndicator();
-    }
-
-    nextSlide() {
-        if (this.currentSlide < this.totalSlides - 1) {
-            this.goToSlide(this.currentSlide + 1);
-        }
-    }
-
-    previousSlide() {
-        if (this.currentSlide > 0) {
-            this.goToSlide(this.currentSlide - 1);
-        }
-    }
-
-    updateNavigationButtons() {
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-
-        prevBtn.disabled = this.currentSlide === 0;
-        nextBtn.disabled = this.currentSlide === this.totalSlides - 1;
-    }
-
-    updateSlideCounter() {
-        document.getElementById('current-slide').textContent = this.currentSlide + 1;
-        document.getElementById('total-slides').textContent = this.totalSlides;
-    }
-
-    updateSectionIndicator() {
-        const currentSection = this.sections.find(section => 
-            this.currentSlide >= section.start && this.currentSlide <= section.end
-        );
-        
-        if (currentSection) {
-            document.getElementById('current-section').textContent = currentSection.name;
-        }
-    }
-
-    setupKeyboardNavigation() {
-        document.addEventListener('keydown', (event) => {
-            switch (event.key) {
-                case 'ArrowLeft':
-                case 'ArrowUp':
-                    event.preventDefault();
-                    this.previousSlide();
-                    break;
-                case 'ArrowRight':
-                case 'ArrowDown':
-                case ' ':
-                    event.preventDefault();
-                    this.nextSlide();
-                    break;
-                case 'Home':
-                    event.preventDefault();
-                    this.goToSlide(0);
-                    break;
-                case 'End':
-                    event.preventDefault();
-                    this.goToSlide(this.totalSlides - 1);
-                    break;
-            }
-        });
-    }
-
-    async loadTableData() {
-        try {
-            await this.loadInvestmentsData();
-            await this.loadStagesData();
-            await this.loadSafetyData();
-            await this.loadSoftwareData();
-            await this.loadStartupsData();
-            await this.loadPublicationsData();
-        } catch (error) {
-            console.error('Error loading table data:', error);
-        }
-    }
-
-    async loadInvestmentsData() {
-        try {
-            const response = await fetch('https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/a3c5a5a14dc1de2fa2d9e37d6619a621/a946cb42-6303-477a-a5dc-d1d4ea0ba82d/0b589ddd.csv');
-            const csvText = await response.text();
-            const data = Papa.parse(csvText, { header: true }).data;
-            
-            const tableBody = document.querySelector('#investments-table tbody');
-            tableBody.innerHTML = '';
-
-            // Filter out empty rows and count valid rows
-            const validRows = data.filter(row => 
-                row['Country/Organization'] && 
-                row['Country/Organization'].trim() !== '' &&
-                row['Country/Organization'] !== 'undefined'
-            );
-
-            if (validRows.length === 0) {
-                throw new Error('No valid data found in CSV');
-            }
-
-            validRows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row['Country/Organization'] || ''}</td>
-                    <td>${row['Investment Amount (USD)'] || ''}</td>
-                    <td>${row['Focus Area'] || ''}</td>
-                    <td>${row['Timeline'] || ''}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        } catch (error) {
-            console.error('Error loading investments data:', error);
-            this.populateInvestmentsDataFallback();
-        }
-    }
-
-    populateInvestmentsDataFallback() {
-        const tableBody = document.querySelector('#investments-table tbody');
-        const fallbackData = [
-            ['USA', '$60 billion', 'SMR Development, Advanced Reactors', '2023-2030'],
-            ['China', '$440 billion', 'Nuclear Fleet Expansion', '2021-2035'],
-            ['France', '$52 billion', 'New Nuclear Program', '2023-2035'],
-            ['UK', '$30 billion', 'Nuclear Renaissance', '2024-2035'],
-            ['India', '$26 billion', 'Nuclear Capacity Addition', '2023-2032'],
-            ['Japan', '$20 billion', 'Reactor Restarts, New Tech', '2023-2030']
-        ];
-
-        tableBody.innerHTML = '';
-        fallbackData.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
-
-    async loadStagesData() {
-        try {
-            const response = await fetch('https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/a3c5a5a14dc1de2fa2d9e37d6619a621/a946cb42-6303-477a-a5dc-d1d4ea0ba82d/f18a9f57.csv');
-            const csvText = await response.text();
-            const data = Papa.parse(csvText, { header: true }).data;
-            
-            const tableBody = document.querySelector('#stages-table tbody');
-            tableBody.innerHTML = '';
-
-            const validRows = data.filter(row => 
-                row['Stage'] && 
-                row['Stage'].trim() !== '' &&
-                row['Stage'] !== 'undefined'
-            );
-
-            if (validRows.length === 0) {
-                throw new Error('No valid data found in CSV');
-            }
-
-            validRows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row['Stage'] || ''}</td>
-                    <td>${row['Reactor Type'] || ''}</td>
-                    <td>${row['Fuel'] || ''}</td>
-                    <td>${row['Purpose'] || ''}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        } catch (error) {
-            console.error('Error loading stages data:', error);
-            this.populateStagesDataFallback();
-        }
-    }
-
-    populateStagesDataFallback() {
-        const tableBody = document.querySelector('#stages-table tbody');
-        const fallbackData = [
-            ['Stage 1', 'Pressurized Heavy Water Reactor (PHWR)', 'Natural Uranium', 'Plutonium production from natural uranium'],
-            ['Stage 2', 'Fast Breeder Reactor (FBR)', 'Plutonium + Uranium', 'Convert U-238 to Pu-239, breed U-233 from Thorium'],
-            ['Stage 3', 'Advanced Heavy Water Reactor (AHWR)', 'U-233 + Thorium', 'Self-sustaining thorium fuel cycle']
-        ];
-
-        tableBody.innerHTML = '';
-        fallbackData.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
-
-    async loadSafetyData() {
-        try {
-            const response = await fetch('https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/a3c5a5a14dc1de2fa2d9e37d6619a621/a946cb42-6303-477a-a5dc-d1d4ea0ba82d/e61d0e68.csv');
-            const csvText = await response.text();
-            const data = Papa.parse(csvText, { header: true }).data;
-            
-            const tableBody = document.querySelector('#safety-table tbody');
-            tableBody.innerHTML = '';
-
-            const validRows = data.filter(row => 
-                row['Safety Generation'] && 
-                row['Safety Generation'].trim() !== '' &&
-                row['Safety Generation'] !== 'undefined'
-            );
-
-            if (validRows.length === 0) {
-                throw new Error('No valid data found in CSV');
-            }
-
-            validRows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row['Safety Generation'] || ''}</td>
-                    <td>${row['Timeline'] || ''}</td>
-                    <td>${row['Key Features'] || ''}</td>
-                    <td>${row['Example Systems'] || ''}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        } catch (error) {
-            console.error('Error loading safety data:', error);
-            this.populateSafetyDataFallback();
-        }
-    }
-
-    populateSafetyDataFallback() {
-        const tableBody = document.querySelector('#safety-table tbody');
-        const fallbackData = [
-            ['Gen I', '1950s-1960s', 'Basic safety systems', 'Manual controls, basic containment'],
-            ['Gen II', '1970s-1990s', 'Active safety systems', 'Emergency cooling, redundant systems'],
-            ['Gen III', '1990s-2010s', 'Advanced active safety', 'Digital controls, improved containment'],
-            ['Gen III+', '2010s-Present', 'Passive safety systems', 'Gravity-driven cooling, walk-away safe'],
-            ['Gen IV', '2030s+', 'Inherent safety', 'Physics-based safety, fail-safe design']
-        ];
-
-        tableBody.innerHTML = '';
-        fallbackData.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
-
-    async loadSoftwareData() {
-        try {
-            const response = await fetch('https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/a3c5a5a14dc1de2fa2d9e37d6619a621/a946cb42-6303-477a-a5dc-d1d4ea0ba82d/8f43b7de.csv');
-            const csvText = await response.text();
-            const data = Papa.parse(csvText, { header: true }).data;
-            
-            const tableBody = document.querySelector('#software-table tbody');
-            tableBody.innerHTML = '';
-
-            const validRows = data.filter(row => 
-                row['Software Tool'] && 
-                row['Software Tool'].trim() !== '' &&
-                row['Software Tool'] !== 'undefined'
-            );
-
-            if (validRows.length === 0) {
-                throw new Error('No valid data found in CSV');
-            }
-
-            validRows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row['Software Tool'] || ''}</td>
-                    <td>${row['Application'] || ''}</td>
-                    <td>${row['License'] || ''}</td>
-                    <td>${row['Learning Difficulty'] || ''}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        } catch (error) {
-            console.error('Error loading software data:', error);
-            this.populateSoftwareDataFallback();
-        }
-    }
-
-    populateSoftwareDataFallback() {
-        const tableBody = document.querySelector('#software-table tbody');
-        const fallbackData = [
-            ['OpenMC', 'Monte Carlo neutronics', 'Open Source', 'Intermediate'],
-            ['OpenFOAM', 'Computational Fluid Dynamics', 'Open Source', 'Advanced'],
-            ['MCNP', 'Radiation transport', 'Commercial', 'Advanced'],
-            ['RELAP5', 'Thermal hydraulics', 'Government', 'Advanced'],
-            ['SCALE', 'Nuclear analysis', 'Government', 'Intermediate'],
-            ['Serpent', 'Reactor physics', 'Academic', 'Intermediate']
-        ];
-
-        tableBody.innerHTML = '';
-        fallbackData.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
-
-    async loadStartupsData() {
-        try {
-            const response = await fetch('https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/a3c5a5a14dc1de2fa2d9e37d6619a621/a946cb42-6303-477a-a5dc-d1d4ea0ba82d/5245aa80.csv');
-            const csvText = await response.text();
-            const data = Papa.parse(csvText, { header: true }).data;
-            
-            const tableBody = document.querySelector('#startups-table tbody');
-            tableBody.innerHTML = '';
-
-            const validRows = data.filter(row => 
-                row['Category'] && 
-                row['Category'].trim() !== '' &&
-                row['Category'] !== 'undefined'
-            );
-
-            if (validRows.length === 0) {
-                throw new Error('No valid data found in CSV');
-            }
-
-            validRows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row['Category'] || ''}</td>
-                    <td>${row['Number of Startups'] || ''}</td>
-                    <td>${row['Total Funding (USD Millions)'] || ''}</td>
-                    <td>${row['Key Examples'] || ''}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        } catch (error) {
-            console.error('Error loading startups data:', error);
-            this.populateStartupsDataFallback();
-        }
-    }
-
-    populateStartupsDataFallback() {
-        const tableBody = document.querySelector('#startups-table tbody');
-        const fallbackData = [
-            ['Small Modular Reactors', '25', '8,500', 'NuScale, Rolls-Royce SMR, TerraPower'],
-            ['Advanced Reactors', '18', '6,200', 'Kairos Power, X-energy, Commonwealth Fusion'],
-            ['Fusion Technology', '35', '12,300', 'Helion Energy, TAE Technologies, Commonwealth Fusion'],
-            ['Nuclear Services', '42', '3,800', 'Orano, Westinghouse, BWXT'],
-            ['Digital/AI Solutions', '28', '2,100', 'Atomic Canyon, Deep Isolation, Lightbridge'],
-            ['Waste Management', '15', '1,900', 'Deep Isolation, Holtec, Orano']
-        ];
-
-        tableBody.innerHTML = '';
-        fallbackData.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
-
-    async loadPublicationsData() {
-        try {
-            const response = await fetch('https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/a3c5a5a14dc1de2fa2d9e37d6619a621/a946cb42-6303-477a-a5dc-d1d4ea0ba82d/8045823a.csv');
-            const csvText = await response.text();
-            const data = Papa.parse(csvText, { header: true }).data;
-            
-            const tableBody = document.querySelector('#publications-table tbody');
-            tableBody.innerHTML = '';
-
-            const validRows = data.filter(row => 
-                row['Research Area'] && 
-                row['Research Area'].trim() !== '' &&
-                row['Research Area'] !== 'undefined'
-            );
-
-            if (validRows.length === 0) {
-                throw new Error('No valid data found in CSV');
-            }
-
-            validRows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row['Research Area'] || ''}</td>
-                    <td>${row['2023 Publications'] || ''}</td>
-                    <td>${row['Growth Rate (%)'] || ''}</td>
-                    <td>${row['Top Journals'] || ''}</td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        } catch (error) {
-            console.error('Error loading publications data:', error);
-            this.populatePublicationsDataFallback();
-        }
-    }
-
-    populatePublicationsDataFallback() {
-        const tableBody = document.querySelector('#publications-table tbody');
-        const fallbackData = [
-            ['Reactor Physics', '2,845', '12.3', 'Nuclear Science & Engineering, Annals of Nuclear Energy'],
-            ['Nuclear Safety', '1,923', '18.7', 'Nuclear Engineering & Design, Progress in Nuclear Energy'],
-            ['Fuel Technology', '1,654', '15.2', 'Journal of Nuclear Materials, Nuclear Technology'],
-            ['Thermal Hydraulics', '1,432', '14.8', 'Nuclear Engineering & Design, International Journal of Heat Transfer'],
-            ['Waste Management', '1,234', '22.1', 'Progress in Nuclear Energy, Radioactive Waste Management'],
-            ['Advanced Reactors', '1,123', '28.4', 'Nuclear Engineering & Design, Nuclear Technology'],
-            ['Digital Twin/AI', '856', '35.6', 'Annals of Nuclear Energy, Nuclear Engineering & Technology'],
-            ['SMR Technology', '734', '41.2', 'Nuclear Engineering & Design, Progress in Nuclear Energy']
-        ];
-
-        tableBody.innerHTML = '';
-        fallbackData.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row[0]}</td>
-                <td>${row[1]}</td>
-                <td>${row[2]}</td>
-                <td>${row[3]}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
+function initializeElements() {
+  slides = document.querySelectorAll('.slide');
+  prevBtn = document.getElementById('prevBtn');
+  nextBtn = document.getElementById('nextBtn');
+  currentSlideSpan = document.getElementById('currentSlide');
+  totalSlidesSpan = document.getElementById('totalSlides');
+  sectionNameSpan = document.getElementById('sectionName');
+  navDots = document.getElementById('navDots');
+  
+  console.log('Elements initialized:', {
+    slides: slides.length,
+    prevBtn: !!prevBtn,
+    nextBtn: !!nextBtn,
+    navDots: !!navDots
+  });
+  
+  totalSlidesSpan.textContent = totalSlides;
 }
 
-// Initialize the presentation when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new NuclearPresentation();
+function setupNavigation() {
+  // Remove any existing listeners and add new ones
+  if (prevBtn) {
+    prevBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Previous button clicked');
+      previousSlide();
+      return false;
+    };
+  }
+  
+  if (nextBtn) {
+    nextBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Next button clicked');
+      nextSlide();
+      return false;
+    };
+  }
+}
+
+function setupKeyboardNavigation() {
+  document.addEventListener('keydown', function(e) {
+    console.log('Key pressed:', e.key);
+    
+    switch(e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        previousSlide();
+        break;
+      case 'ArrowRight':
+      case ' ':
+        e.preventDefault();
+        nextSlide();
+        break;
+      case 'Home':
+        e.preventDefault();
+        goToSlide(1);
+        break;
+      case 'End':
+        e.preventDefault();
+        goToSlide(totalSlides);
+        break;
+    }
+  });
+}
+
+function createNavigationDots() {
+  if (!navDots) return;
+  
+  navDots.innerHTML = ''; // Clear existing dots
+  
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot';
+    if (i === 1) dot.classList.add('active');
+    
+    // Use closure to capture the correct slide number
+    dot.onclick = (function(slideNum) {
+      return function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Dot clicked for slide:', slideNum);
+        goToSlide(slideNum);
+        return false;
+      };
+    })(i);
+    
+    dot.setAttribute('aria-label', `Go to slide ${i}`);
+    dot.setAttribute('tabindex', '0');
+    
+    // Add keyboard support for dots
+    dot.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        goToSlide(i);
+      }
+    });
+    
+    navDots.appendChild(dot);
+  }
+  
+  console.log('Navigation dots created:', totalSlides);
+}
+
+function previousSlide() {
+  console.log('previousSlide called, currentSlide:', currentSlide);
+  if (currentSlide > 1) {
+    goToSlide(currentSlide - 1);
+  }
+}
+
+function nextSlide() {
+  console.log('nextSlide called, currentSlide:', currentSlide);
+  if (currentSlide < totalSlides) {
+    goToSlide(currentSlide + 1);
+  }
+}
+
+function goToSlide(slideNumber) {
+  console.log('goToSlide called with:', slideNumber, 'current:', currentSlide);
+  
+  if (slideNumber < 1 || slideNumber > totalSlides || slideNumber === currentSlide) {
+    console.log('Invalid slide number or same slide, returning');
+    return;
+  }
+  
+  // Remove active class from current slide
+  const currentSlideElement = document.querySelector('.slide.active');
+  if (currentSlideElement) {
+    currentSlideElement.classList.remove('active');
+  }
+  
+  // Add active class to new slide
+  const newSlideElement = document.querySelector(`[data-slide="${slideNumber}"]`);
+  if (newSlideElement) {
+    newSlideElement.classList.add('active');
+    console.log('Activated slide:', slideNumber);
+  } else {
+    console.error('Could not find slide element for:', slideNumber);
+  }
+  
+  // Update current slide number
+  currentSlide = slideNumber;
+  
+  // Update UI
+  updateSlideInfo();
+  updateNavigationDots();
+  updateButtonStates();
+  
+  // Load slide-specific content
+  loadSlideSpecificContent(slideNumber);
+}
+
+function loadSlideSpecificContent(slideNumber) {
+  switch(slideNumber) {
+    case 2:
+      setTimeout(() => createSankeyDiagram(), 100);
+      break;
+    case 5:
+      setTimeout(() => createInvestmentChart(), 100);
+      break;
+    case 12:
+      setTimeout(() => createWorkforceChart(), 100);
+      break;
+  }
+}
+
+function updateSlideInfo() {
+  if (currentSlideSpan) {
+    currentSlideSpan.textContent = currentSlide;
+  }
+  if (sectionNameSpan) {
+    sectionNameSpan.textContent = sections[currentSlide] || 'Introduction';
+  }
+  console.log('Updated slide info:', currentSlide, sections[currentSlide]);
+}
+
+function updateNavigationDots() {
+  if (!navDots) return;
+  
+  const dots = navDots.querySelectorAll('.nav-dot');
+  dots.forEach((dot, index) => {
+    if (index + 1 === currentSlide) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+}
+
+function updateButtonStates() {
+  // Update previous button
+  if (prevBtn) {
+    prevBtn.disabled = currentSlide === 1;
+    prevBtn.style.opacity = currentSlide === 1 ? '0.5' : '1';
+  }
+  
+  // CRITICAL FIX: Update next button - disable on last slide
+  if (nextBtn) {
+    nextBtn.disabled = currentSlide === totalSlides;
+    nextBtn.style.opacity = currentSlide === totalSlides ? '0.5' : '1';
+    
+    // Update button text for last slide
+    if (currentSlide === totalSlides) {
+      nextBtn.textContent = 'Complete';
+    } else {
+      nextBtn.textContent = 'Next';
+    }
+  }
+  
+  console.log('Button states updated:', {
+    prevDisabled: currentSlide === 1,
+    nextDisabled: currentSlide === totalSlides,
+    currentSlide: currentSlide
+  });
+}
+
+function initializeCharts() {
+  console.log('Initializing charts...');
+  createSankeyDiagram();
+}
+
+function createSankeyDiagram() {
+  const container = document.getElementById('sankeyChart');
+  if (!container) {
+    console.log('Sankey chart container not found');
+    return;
+  }
+  
+  console.log('Creating Sankey diagram...');
+  
+  // Clear existing content
+  container.innerHTML = '';
+  
+  // Get container dimensions
+  const containerRect = container.getBoundingClientRect();
+  const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+  const width = Math.max(800, containerRect.width || 800) - margin.left - margin.right;
+  const height = 350 - margin.top - margin.bottom;
+  
+  // Create SVG with proper responsiveness
+  const svg = d3.select('#sankeyChart')
+    .append('svg')
+    .attr('width', '100%')
+    .attr('height', '100%')
+    .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+  
+  const g = svg.append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+  
+  // Define nodes with positions
+  const nodesData = [
+    { id: 'Coal', x: 50, y: 80, value: 720, color: '#B4413C' },
+    { id: 'Oil & Gas', x: 50, y: 140, value: 280, color: '#DB4545' },
+    { id: 'Nuclear', x: 50, y: 200, value: 50, color: '#1FB8CD' },
+    { id: 'Renewables', x: 50, y: 260, value: 120, color: '#5D878F' },
+    { id: 'Electricity', x: 350, y: 150, value: 890, color: '#FFC185' },
+    { id: 'Transportation', x: 350, y: 260, value: 280, color: '#964325' },
+    { id: 'Industry', x: 650, y: 100, value: 400, color: '#944454' },
+    { id: 'Residential', x: 650, y: 160, value: 300, color: '#D2BA4C' },
+    { id: 'Commercial', x: 650, y: 220, value: 190, color: '#13343B' }
+  ];
+  
+  const linksData = appData.energyFlowData;
+  
+  // Draw links first
+  linksData.forEach(link => {
+    const sourceNode = nodesData.find(n => n.id === link.source);
+    const targetNode = nodesData.find(n => n.id === link.target);
+    
+    if (sourceNode && targetNode) {
+      const linkWidth = Math.max(3, link.value / 15);
+      
+      // Create curved path
+      const midX = (sourceNode.x + targetNode.x) / 2;
+      const path = `M${sourceNode.x + 80},${sourceNode.y + 15} 
+                   Q${midX},${sourceNode.y + 15} ${midX},${(sourceNode.y + targetNode.y) / 2}
+                   Q${midX},${targetNode.y + 15} ${targetNode.x - 80},${targetNode.y + 15}`;
+      
+      g.append('path')
+        .attr('d', path)
+        .attr('stroke', sourceNode.color)
+        .attr('stroke-width', linkWidth)
+        .attr('fill', 'none')
+        .attr('opacity', 0.6);
+    }
+  });
+  
+  // Draw nodes
+  const nodes = g.selectAll('.node')
+    .data(nodesData)
+    .enter().append('g')
+    .attr('class', 'node')
+    .attr('transform', d => `translate(${d.x},${d.y})`);
+  
+  // Node rectangles
+  nodes.append('rect')
+    .attr('width', 160)
+    .attr('height', 30)
+    .attr('x', -80)
+    .attr('y', 0)
+    .attr('fill', d => d.color)
+    .attr('rx', 6)
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 1);
+  
+  // Node labels
+  nodes.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('x', 0)
+    .attr('y', 12)
+    .attr('fill', 'white')
+    .attr('font-size', '12px')
+    .attr('font-weight', 'bold')
+    .text(d => d.id);
+  
+  // Node values
+  nodes.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('x', 0)
+    .attr('y', 25)
+    .attr('fill', 'white')
+    .attr('font-size', '10px')
+    .text(d => `${d.value} TWh`);
+  
+  // Add title
+  svg.append('text')
+    .attr('x', (width + margin.left + margin.right) / 2)
+    .attr('y', 15)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '14px')
+    .attr('font-weight', 'bold')
+    .text('India\'s Energy Flow (2024)');
+  
+  console.log('Sankey diagram created successfully');
+}
+
+function createInvestmentChart() {
+  const ctx = document.getElementById('investmentChart');
+  if (!ctx || window.investmentChart) return;
+  
+  console.log('Creating investment chart...');
+  
+  window.investmentChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: appData.investmentData.map(d => d.country),
+      datasets: [
+        {
+          label: 'Investment ($B)',
+          data: appData.investmentData.map(d => d.investment),
+          backgroundColor: '#1FB8CD',
+          borderColor: '#13343B',
+          borderWidth: 1,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Projects',
+          data: appData.investmentData.map(d => d.projects),
+          backgroundColor: '#FFC185',
+          borderColor: '#964325',
+          borderWidth: 2,
+          type: 'line',
+          yAxisID: 'y1',
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Global Nuclear Investment & Projects (2024)',
+          font: { size: 16, weight: 'bold' }
+        },
+        legend: {
+          position: 'top'
+        }
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Investment ($B)'
+          },
+          beginAtZero: true
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: {
+            display: true,
+            text: 'Number of Projects'
+          },
+          beginAtZero: true,
+          grid: {
+            drawOnChartArea: false,
+          },
+        }
+      }
+    }
+  });
+}
+
+function createWorkforceChart() {
+  const ctx = document.getElementById('workforceChart');
+  if (!ctx || window.workforceChart) return;
+  
+  console.log('Creating workforce chart...');
+  
+  window.workforceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: appData.workforceProjections.map(d => d.year),
+      datasets: [
+        {
+          label: 'Current Workforce',
+          data: appData.workforceProjections.map(d => d.current),
+          borderColor: '#B4413C',
+          backgroundColor: 'rgba(180, 65, 60, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 6,
+          pointHoverRadius: 8
+        },
+        {
+          label: 'Required Workforce',
+          data: appData.workforceProjections.map(d => d.required),
+          borderColor: '#1FB8CD',
+          backgroundColor: 'rgba(31, 184, 205, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 6,
+          pointHoverRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Nuclear Workforce Projections (2024-2050)',
+          font: { size: 16, weight: 'bold' }
+        },
+        legend: {
+          position: 'top'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Workers'
+          },
+          ticks: {
+            callback: function(value) {
+              return (value / 1000) + 'K';
+            }
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Year'
+          }
+        }
+      }
+    }
+  });
+}
+
+// Handle window resize for responsive charts
+window.addEventListener('resize', function() {
+  setTimeout(() => {
+    if (currentSlide === 2) {
+      createSankeyDiagram();
+    }
+  }, 100);
 });
 
-// Add smooth scrolling for tables
-document.addEventListener('DOMContentLoaded', () => {
-    const tables = document.querySelectorAll('.table-container');
-    tables.forEach(table => {
-        table.style.scrollBehavior = 'smooth';
-    });
-});
+// Touch support for mobile devices
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', function(e) {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.addEventListener('touchend', function(e) {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+  const swipeThreshold = 50;
+  const diff = touchStartX - touchEndX;
+  
+  if (Math.abs(diff) > swipeThreshold) {
+    if (diff > 0) {
+      nextSlide();
+    } else {
+      previousSlide();
+    }
+  }
+}
+
+// Export functions for debugging
+window.NuclearPresentation = {
+  goToSlide,
+  nextSlide,
+  previousSlide,
+  getCurrentSlide: () => currentSlide,
+  getTotalSlides: () => totalSlides,
+  createSankeyDiagram,
+  createInvestmentChart,
+  createWorkforceChart
+};
+
+// Additional debugging
+console.log('Nuclear Presentation app loaded successfully');
