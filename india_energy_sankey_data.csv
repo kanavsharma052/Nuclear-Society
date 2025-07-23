@@ -1,0 +1,13 @@
+Source,Value,Target
+Coal,720,Energy Pool
+Oil & Gas,280,Energy Pool
+Nuclear,50,Energy Pool
+Hydro,180,Energy Pool
+Renewables,120,Energy Pool
+Import,80,Energy Pool
+Energy Pool,520,Industry
+Energy Pool,180,Transport
+Energy Pool,280,Residential
+Energy Pool,120,Commercial
+Energy Pool,130,Agriculture
+Energy Pool,200,Losses

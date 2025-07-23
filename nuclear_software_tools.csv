@@ -1,0 +1,7 @@
+Software,Type,Application,Used For,Learning Curve,IP Development
+OpenMC,Open Source,Monte Carlo Neutronics,"Reactor Physics, Criticality",Medium,Yes
+OpenFOAM,Open Source,Computational Fluid Dynamics,"Heat Transfer, Fluid Flow",High,Yes
+MCNP,Commercial,Radiation Transport,"Shielding, Dosimetry",High,Limited
+RELAP5,Commercial,Thermal Hydraulics,Safety Analysis,High,Limited
+APROS,Commercial,Plant Simulation,"Plant Training, Analysis",Medium,Limited
+SERPENT,Open Source,Reactor Physics,"Burnup, Fuel Management",Medium,Yes

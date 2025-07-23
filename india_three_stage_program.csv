@@ -1,0 +1,4 @@
+Stage,Fuel Input,Primary Output,Current Status,Capacity (MWe),Key Technology
+Stage 1: PHWR,Natural Uranium (U-238),Electricity + Plutonium-239,Operational (22 reactors),220-700,PHWR
+Stage 2: FBR,Plutonium-239 + U-238,Electricity + U-233,PFBR Commissioning,500,Fast Breeder
+Stage 3: AHWR,Thorium-232 + U-233,Electricity (Sustainable),R&D Phase,300 (Planned),Thorium Breeder
