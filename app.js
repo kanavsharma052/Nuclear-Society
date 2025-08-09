@@ -52,10 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
   updateSlideInfo();
   updateButtonStates();
   
-  // Initialize charts with delay
-  setTimeout(() => {
-    initializeCharts();
-  }, 500);
+  // CRITICAL FIX: Only load content for the FIRST slide on startup.
+  loadSlideSpecificContent(currentSlide); 
 });
 
 function initializeElements() {
@@ -277,10 +275,6 @@ function updateButtonStates() {
   });
 }
 
-function initializeCharts() {
-  console.log('Initializing charts...');
-  createSankeyDiagram();
-}
 
 function createSankeyDiagram() {
   const container = document.getElementById('sankeyChart');
@@ -400,7 +394,7 @@ function createSankeyDiagram() {
 
 function createInvestmentChart() {
   const ctx = document.getElementById('investmentChart');
-  if (!ctx || window.investmentChart) return;
+  if (!ctx || ctx.canvas.dataset.chartLoaded) return;
   
   console.log('Creating investment chart...');
   
@@ -469,11 +463,12 @@ function createInvestmentChart() {
       }
     }
   });
+  ctx.canvas.dataset.chartLoaded = 'true';
 }
 
 function createWorkforceChart() {
   const ctx = document.getElementById('workforceChart');
-  if (!ctx || window.workforceChart) return;
+  if (!ctx || ctx.canvas.dataset.chartLoaded) return;
   
   console.log('Creating workforce chart...');
   
@@ -541,6 +536,7 @@ function createWorkforceChart() {
       }
     }
   });
+  ctx.canvas.dataset.chartLoaded = 'true';
 }
 
 // Handle window resize for responsive charts
